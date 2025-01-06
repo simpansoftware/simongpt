@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simon's AI Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #response {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        #user-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+        #send-btn {
+            padding: 10px 20px;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Simon's AI Chat</h1>
+    <p>Type your question below to ask the AI!</p>
+
+    <input type="text" id="user-input" placeholder="Ask the AI..." />
+    <button id="send-btn" onclick="askAI()">Ask AI</button>
+
+    <div id="response"></div>
+
+    <script>
+        async function askAI() {
+            // Get the input value from the user
+            const userInput = document.getElementById('user-input').value;
+            if (!userInput) return; // Don't send empty input
+
+            // Show that the system is thinking
+            const responseDiv = document.getElementById("response");
+            responseDiv.innerHTML = "Thinking...";
+
+            const url = "http://192.168.1.178:5000/api/chat";  // Proxy server URL
+            const data = {
+                model: "llama3.2",
+                messages: [
+                    { role: "user", content: userInput }
+                ]
+            };
+
+            try {
+                // Fetch the response from the server (the proxy server)
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+
+                // Parse the response JSON
+                const responseData = await response.json();
+
+                // Log the response for debugging purposes
+                console.log(responseData);
+
+                // Update the response div with the AI's answer
+                if (responseData.response) {
+                    responseDiv.innerHTML = responseData.response;
+                } else {
+                    responseDiv.innerHTML = 'No response received.';
+                }
+
+            } catch (error) {
+                console.error('Error fetching the response:', error);
+                responseDiv.innerHTML = 'Error occurred while fetching response.';
+            }
+        }
+    </script>
+
+</body>
+</html>

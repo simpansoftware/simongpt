@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simon's AI Chat</title>
+    <style>
+        /* Anime-inspired Colors */
+        :root {
+            --main-bg-color: #f5f1f1;
+            --primary-color: #ff6ec7; /* Soft Pink */
+            --secondary-color: #3b6ad6; /* Light Blue */
+            --button-color: #ffb6c1; /* Light Pink */
+            --font-family: 'Poppins', sans-serif;
+            --text-color: #444;
+            --border-radius: 12px;
+            --border-color-user: #ff6ec7; /* Border color for user messages */
+            --border-color-assistant: #3b6ad6; /* Border color for assistant messages */
+        }
+
+        /* Body and Overall Layout */
+        body {
+            background-color: var(--main-bg-color);
+            font-family: var(--font-family);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-top: 20px;
+        }
+
+        p {
+            font-size: 1.1em;
+            color: var(--secondary-color);
+        }
+
+        /* Chat Box and Input Styles */
+        #chat-container {
+            height: 70vh;
+            overflow-y: auto;
+            margin-top: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            border: 2px solid var(--secondary-color); /* Border around the chat container */
+            border-radius: var(--border-radius);
+            background-color: #fff; /* White background for the container */
+            width: calc(80% - 24px); /* Dynamically match user input width minus padding */
+        }
+
+        /* Chat Bubble Styling */
+        .chat-bubble {
+            max-width: 80%;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            font-size: 1.1em;
+            margin: 10px 0;
+            line-height: 1.4;
+            display: inline-block;
+            position: relative;
+            border: 2px solid;
+            animation: bubble-fade-in 0.6s ease-out;
+        }
+
+        .chat-bubble.user {
+            background-color: #ffe6f1;
+            border-color: var(--border-color-user); /* Border for user messages */
+            text-align: right;
+            margin-left: auto;
+        }
+
+        .chat-bubble.assistant {
+            background-color: #e0f1ff;
+            border-color: var(--border-color-assistant); /* Border for assistant messages */
+            text-align: left;
+            margin-right: auto;
+        }
+
+        /* Animation for chat bubbles */
+        @keyframes bubble-fade-in {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Input Container with Button */
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            width: 80%; /* Same width as #chat-container */
+            margin-top: 20px;
+        }
+
+        /* User Input Field */
+        #user-input {
+            flex-grow: 1;
+            padding: 12px;
+            font-size: 1.2em;
+            border-radius: var(--border-radius);
+            border: 2px solid var(--primary-color);
+            background-color: #fff;
+            color: var(--text-color);
+        }
+
+        /* Send Button */
+        #send-btn {
+            padding: 12px 25px;
+            font-size: 1.2em;
+            background-color: var(--button-color);
+            border: none;
+            color: #fff;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        #send-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 768px) {
+            .input-container {
+                width: 90%;
+            }
+
+            #chat-container {
+                width: 90%; /* Adjust dynamically for smaller screens */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .input-container {
+                width: 95%;
+            }
+
+            #chat-container {
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Simon's AI Chat</h1>
+    <p>Type your question below to ask the AI!</p>
+
+    <div id="chat-container"></div>
+
+    <!-- Input and Button Container -->
+    <div class="input-container">
+        <input type="text" id="user-input" placeholder="Ask the AI..." />
+        <button id="send-btn" onclick="askAI()">Ask AI</button>
+    </div>
+
+    <script>
+        let conversationHistory = [];  // Store the entire conversation here
+
+        async function askAI() {
+            const userInput = document.getElementById('user-input').value;
+            if (!userInput) return;  // Don't send empty input
+
+            // Add the user's message to the chat history
+            conversationHistory.push({ role: 'user', content: userInput });
+
+            const responseDiv = document.getElementById("chat-container");
+
+            // Create and display the user's message bubble
+            const userBubble = document.createElement('div');
+            userBubble.classList.add('chat-bubble', 'user');
+            userBubble.textContent = userInput;
+            responseDiv.appendChild(userBubble);
+
+            // Clear the input field
+            document.getElementById('user-input').value = '';
+
+            // Scroll to the latest message
+            responseDiv.scrollTop = responseDiv.scrollHeight;
+
+            // Add "thinking" bubble with random delay between 1.5 and 3 seconds
+            const delay = Math.random() * (3000 - 1500) + 1500; // Random delay between 1500ms and 3000ms
+            const thinkingBubble = document.createElement('div');
+            thinkingBubble.classList.add('chat-bubble', 'assistant');
+            thinkingBubble.textContent = 'AI is thinking...';
+            setTimeout(() => {
+                responseDiv.appendChild(thinkingBubble);
+                responseDiv.scrollTop = responseDiv.scrollHeight; // Scroll to the latest message
+            }, delay);
+
+            const url = "http://192.168.1.178:5000/api/chat";  // Proxy server URL
+            const data = {
+                model: "llama3.2",
+                messages: conversationHistory  // Send entire conversation history
+            };
+
+            try {
+                console.log("Requesting AI response...");
+                // Fetch the response from the server (the proxy server)
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                console.log("Response received.");
+
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+
+                // Parse the response JSON
+                const responseData = await response.json();
+
+                // Remove the "Thinking..." bubble if it exists
+                const thinkingBubbles = document.querySelectorAll('.chat-bubble.assistant');
+                thinkingBubbles.forEach(bubble => {
+                    if (bubble.textContent === 'AI is thinking...') {
+                        bubble.remove();
+                    }
+                });
+
+                // Add the AI's response to the conversation history
+                if (responseData.response) {
+                    conversationHistory.push({ role: 'assistant', content: responseData.response });
+                }
+
+                // Create a new chat bubble for the AI's response
+                const assistantBubble = document.createElement('div');
+                assistantBubble.classList.add('chat-bubble', 'assistant');
+                assistantBubble.textContent = responseData.response;
+                responseDiv.appendChild(assistantBubble);
+
+                // Scroll to the latest message
+                responseDiv.scrollTop = responseDiv.scrollHeight;
+
+            } catch (error) {
+                console.error('Error fetching the response:', error);
+                responseDiv.innerHTML = 'Error occurred while fetching response.'; // Error message
+            }
+        }
+    </script>
+
+</body>
+</html>
