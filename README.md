@@ -1,4 +1,4 @@
-** SimonGPT
+* SimonGPT
 
 A free frontend for Ollama
 
