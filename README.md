@@ -7,7 +7,7 @@ Requirements:
   Python 3.x
   pip modules: requests, json, flask, flask_cors
 
-Steps: 
+Steps:
   0. cd to your directory
   1. run "python3 api.py"
   2. run "python3 -m http.server 8080 --bind 0.0.0.0"
