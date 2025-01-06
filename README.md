@@ -4,8 +4,8 @@ A free frontend for Ollama
 
 ## Requirements:
   
-A model to work with (preconfigured to be Llama3.2)
-Python 3.x
+A model to work with (preconfigured to be Llama3.2) 
+Python 3.x 
 pip modules: requests, json, flask, flask_cors
 
 ## Steps:
